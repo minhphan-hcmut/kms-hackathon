@@ -1,0 +1,68 @@
+version: '3.8'
+
+services:
+  # ─── Dịch vụ Cơ sở dữ liệu Quan hệ (PostgreSQL) ───────────────
+  postgres:
+    image: postgres:15-alpine
+    container_name: brainlift_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: brainlift
+      POSTGRES_PASSWORD: brainliftpassword
+      POSTGRES_DB: brainlift
+    ports:
+      - "5432:5432" # Ánh xạ port để host (máy ảo/host) có thể dùng DBeaver/TablePlus kết nối
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U brainlift"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # ─── Dịch vụ Cơ sở dữ liệu Phi cấu trúc (MongoDB) ──────────────
+  mongo:
+    image: mongo:6
+    container_name: brainlift_mongo
+    restart: always
+    ports:
+      - "27017:27017" # Ánh xạ port để host dùng MongoDB Compass kết nối
+    volumes:
+      - mongo_data:/data/db
+
+  # ─── Dịch vụ Backend (Nest.js API) ─────────────────────────────
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: brainlift_backend
+    restart: on-failure
+    ports:
+      - "3000:3000"
+    environment:
+      # Inject các biến môi trường trực tiếp, ghi đè file .env nội bộ
+      - NODE_ENV=development
+      - PORT=3000
+      - JWT_SECRET=super_secret_jwt_key_hackathon_2026
+      # Sử dụng Internal Docker DNS (tên service "postgres", "mongo") thay vì "localhost"
+      - PG_HOST=postgres
+      - PG_PORT=5432
+      - PG_USER=brainlift
+      - PG_PASSWORD=brainliftpassword
+      - PG_DATABASE=brainlift
+      - MONGO_URI=mongodb://mongo:27017/brainlift_ai
+      # Khai báo rỗng cho OpenAI Key, người chạy sẽ inject lại ở .env.docker
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-sk-your-openai-api-key}
+      - LLM_MODEL=gpt-4o-mini
+      - EMBEDDING_MODEL=text-embedding-3-small
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mongo:
+        condition: service_started
+
+volumes:
+  postgres_data:
+    name: brainlift_postgres_data
+  mongo_data:
+    name: brainlift_mongo_data

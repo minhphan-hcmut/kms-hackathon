@@ -1,0 +1,67 @@
+# 1. Khai báo thư viện và thư mục được biên dịch (Node dependencies và build outputs)
+node_modules/
+dist/
+build/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# 2. Biến môi trường và cấu hình bảo mật (Loại bỏ các tệp chứa thông tin nhạy cảm)
+.env
+.env.test
+.env.production
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+# (Cho phép các tệp cấu hình mẫu để ban giám khảo có thể tham khảo thiết lập)
+!.env.example
+!.env.docker
+!.env.template
+
+# 3. Dữ liệu Docker Database nội bộ (PostgreSQL & MongoDB local volumes)
+# Đảm bảo không đẩy dữ liệu khổng lồ của database lên kho lưu trữ
+docker/data/
+docker-data/
+postgres-data/
+mongo-data/
+db-data/
+pgdata/
+mongodata/
+
+# 4. Tập tin rác của Hệ điều hành (OS-specific junk files)
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# 5. Cấu hình Môi trường Phát triển Tích hợp (IDE configurations)
+.idea/
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.swp
+*.swo
+.project
+.classpath
+.settings/
+
+# 6. Các tập tin phân tích, coverage và báo cáo lỗi (Logs, coverage files)
+logs/
+*.log
+coverage/
+.nyc_output/
+.eslintcache
+
+# 7. Các thư mục tạm thời (Temporary files)
+.temp/
+.tmp/
+tmp/
